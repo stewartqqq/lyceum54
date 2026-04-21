@@ -143,7 +143,7 @@ export default function App() {
         </header>
 
         <div className="mobile-nav">
-          {navItems.slice(0, 7).map(item => (
+          {navItems.map(item => (
             <button key={item.id} className={tab === item.id && !detail ? "active" : ""} onClick={() => openTab(item.id)}>
               {t(item.label)}
             </button>
