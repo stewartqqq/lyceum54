@@ -385,3 +385,260 @@ export const mockNotifications: AppNotification[] = [
   { id: 3, userId: 1, title: "Опубликован отчет Eco Day", titleKz: "Eco Day есебі жарияланды", message: "Посмотри результаты и лучшие моменты прошедшего события.", messageKz: "Өткен іс-шараның нәтижелері мен үздік сәттерін қараңыз.", isRead: true, type: "report", createdAt: "2026-04-10T12:00:00+00:00" },
   { id: 4, userId: 1, title: "Музыкальный вечер открыт для 8A", titleKz: "Музыкалық кеш 8A үшін ашық", message: "Ты можешь зарегистрироваться зрителем или участником.", messageKz: "Сіз көрермен немесе қатысушы ретінде тіркеле аласыз.", isRead: false, type: "event", createdAt: "2026-04-16T10:00:00+00:00" }
 ];
+
+const photo = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`;
+
+Object.assign(mockAnnouncements.find(item => item.id === 2) ?? {}, { imageUrl: photo("photo-1519389950473-47ba0277781c") });
+Object.assign(mockAnnouncements.find(item => item.id === 3) ?? {}, { imageUrl: photo("photo-1521737604893-d14cc237f11d") });
+Object.assign(mockAnnouncements.find(item => item.id === 4) ?? {}, { imageUrl: photo("photo-1516321318423-f06f85e504b3") });
+Object.assign(mockAnnouncements.find(item => item.id === 5) ?? {}, { imageUrl: photo("photo-1559027615-cd4628902d4a") });
+Object.assign(mockAnnouncements.find(item => item.id === 6) ?? {}, { imageUrl: photo("photo-1521587760476-6c12a4b040da") });
+Object.assign(mockAnnouncements.find(item => item.id === 7) ?? {}, { imageUrl: photo("photo-1509062522246-3755977927d7") });
+Object.assign(mockEvents.find(item => item.id === 3) ?? {}, { coverImage: photo("photo-1523580494863-6f3031224c94") });
+Object.assign(mockEvents.find(item => item.id === 8) ?? {}, { coverImage: photo("photo-1529699211952-734e80c4d42b") });
+
+mockAnnouncements.push(
+  {
+    id: 8,
+    title: "Открыта запись на весенние мастерские",
+    titleKz: "Көктемгі шеберханаларға жазылу ашылды",
+    content: "На этой неделе запускаются мастерские по фотографии, публичным выступлениям, робототехнике и школьному медиа. Каждый ученик может выбрать одно направление, а кураторы помогут собрать портфолио или мини-проект к финальному показу.",
+    contentKz: "Осы аптада фотография, көпшілік алдында сөйлеу, робототехника және мектеп медиа бағыттары бойынша шеберханалар басталады.",
+    category: "opportunity",
+    priority: "important",
+    imageUrl: photo("photo-1497493292307-31c376b6e479"),
+    targetClasses: ["8A", "8B", "9A", "10B", "11A"],
+    createdAt: "2026-04-20T08:30:00+00:00"
+  },
+  {
+    id: 9,
+    title: "Неделя профориентации для старших классов",
+    titleKz: "Жоғары сыныптарға арналған мамандық апталығы",
+    content: "Университетские гости, выпускники и школьный психолог проведут встречи о выборе специальности, портфолио, олимпиадах и грантах. Часть встреч открыта для зрителей из 9 классов.",
+    contentKz: "Университет қонақтары, түлектер және мектеп психологы мамандық таңдау, портфолио, олимпиадалар және гранттар туралы кездесулер өткізеді.",
+    category: "school-wide",
+    priority: "normal",
+    imageUrl: photo("photo-1523240795612-9a054b0db644"),
+    targetClasses: ["9A", "10B", "11A"],
+    createdAt: "2026-04-20T10:10:00+00:00"
+  },
+  {
+    id: 10,
+    title: "Классные команды готовят стенды ко Дню школы",
+    titleKz: "Сынып командалары мектеп күніне стенд дайындайды",
+    content: "Каждый класс выбирает тему стенда: история класса, любимые проекты, спортивные победы или полезные идеи для школы. Лучшие стенды попадут в отчет и будут показаны на главной странице.",
+    contentKz: "Әр сынып стенд тақырыбын таңдайды: сынып тарихы, сүйікті жобалар, спорттық жеңістер немесе мектепке пайдалы идеялар.",
+    category: "class-specific",
+    priority: "normal",
+    imageUrl: photo("photo-1517245386807-bb43f82c33c4"),
+    targetClasses: ["7A", "7B", "8A", "8B", "9A", "10B", "11A"],
+    createdAt: "2026-04-19T12:45:00+00:00"
+  },
+  {
+    id: 11,
+    title: "Обновлены правила регистрации зрителей",
+    titleKz: "Көрермендерді тіркеу ережелері жаңартылды",
+    content: "Если мероприятие ограничено по классам, зрительская заявка будет доступна только ученикам из списка. Участником можно подать заявку отдельно, если организатор оставил такую роль открытой.",
+    contentKz: "Іс-шара сыныптар бойынша шектелсе, көрермен өтінімі тек тізімдегі оқушыларға қолжетімді болады.",
+    category: "school-wide",
+    priority: "important",
+    imageUrl: photo("photo-1450101499163-c8848c66ca85"),
+    targetClasses: [],
+    createdAt: "2026-04-19T15:00:00+00:00"
+  }
+);
+
+mockEvents.push(
+  {
+    id: 9,
+    title: "Форум профессий: медицина, IT и инженерия",
+    titleKz: "Мамандықтар форумы: медицина, IT және инженерия",
+    shortDescription: "Старшеклассники встречаются с выпускниками и собирают карту карьерных шагов.",
+    shortDescriptionKz: "Жоғары сынып оқушылары түлектермен кездесіп, мансап қадамдарының картасын жасайды.",
+    fullDescription: "Форум состоит из трех треков: медицина и биотехнологии, IT и цифровые продукты, инженерия и городская среда. Участники готовят вопросы заранее, а зрители могут прийти на панельные сессии, если их класс есть в списке допуска.",
+    fullDescriptionKz: "Форум үш бағыттан тұрады: медицина және биотехнология, IT және цифрлық өнімдер, инженерия және қалалық орта.",
+    date: "2026-05-23",
+    startTime: "14:30",
+    endTime: "17:30",
+    location: "Конференц-зал",
+    locationKz: "Конференц-зал",
+    category: "science",
+    organizer: "Career Office",
+    organizerKz: "Career Office",
+    coverImage: photo("photo-1552664730-d307ca884978"),
+    registrationOpen: true,
+    registrationDeadline: "2026-05-20T18:00:00+00:00",
+    participantCapacity: 45,
+    spectatorCapacity: 100,
+    participantApprovedCount: 19,
+    spectatorApprovedCount: 43,
+    allowedSpectatorClasses: ["9A", "10B", "11A"],
+    viewerCanSpectate: false,
+    tags: ["career", "университет", "портфолио"],
+    status: "upcoming",
+    featured: true
+  },
+  {
+    id: 10,
+    title: "Театральная лаборатория: один день репетиции",
+    titleKz: "Театр зертханасы: бір күндік дайындық",
+    shortDescription: "Команды ставят короткие сцены по школьным историям и учатся работать с голосом.",
+    shortDescriptionKz: "Командалар мектеп оқиғалары бойынша қысқа сахналар қойып, дауыспен жұмыс істеуді үйренеді.",
+    fullDescription: "Лаборатория подходит для тех, кто хочет попробовать актерское мастерство, сценографию, свет, звук или работу режиссера. Финальный показ пройдет в конце дня, зрительские места открыты для 8-11 классов.",
+    fullDescriptionKz: "Зертхана актерлік шеберлік, сценография, жарық, дыбыс немесе режиссерлік жұмысты байқап көргісі келетіндерге арналған.",
+    date: "2026-05-27",
+    startTime: "13:00",
+    endTime: "18:00",
+    location: "Малая сцена",
+    locationKz: "Кіші сахна",
+    category: "culture",
+    organizer: "Drama Studio",
+    organizerKz: "Drama Studio",
+    coverImage: photo("photo-1503095396549-807759245b35"),
+    registrationOpen: true,
+    registrationDeadline: "2026-05-24T18:00:00+00:00",
+    participantCapacity: 28,
+    spectatorCapacity: 75,
+    participantApprovedCount: 14,
+    spectatorApprovedCount: 21,
+    allowedSpectatorClasses: ["8A", "8B", "9A", "10B", "11A"],
+    viewerCanSpectate: true,
+    tags: ["театр", "сцена", "культура"],
+    status: "upcoming",
+    featured: false
+  },
+  {
+    id: 11,
+    title: "Медиахакатон: школьный подкаст за 3 часа",
+    titleKz: "Медиа-хакатон: 3 сағатта мектеп подкасты",
+    shortDescription: "Участники пишут сценарий, записывают звук и собирают первый выпуск.",
+    shortDescriptionKz: "Қатысушылар сценарий жазып, дыбыс жазып, алғашқы шығарылымды жинайды.",
+    fullDescription: "Медиахакатон научит быстро выбирать тему, распределять роли, записывать интервью и делать короткий монтаж. Лучшие выпуски будут опубликованы в школьном дайджесте.",
+    fullDescriptionKz: "Медиа-хакатон тақырып таңдауды, рөлдерді бөлуді, сұхбат жазуды және қысқа монтаж жасауды үйретеді.",
+    date: "2026-05-29",
+    startTime: "15:00",
+    endTime: "18:00",
+    location: "Медиацентр",
+    locationKz: "Медиаорталық",
+    category: "culture",
+    organizer: "School Media",
+    organizerKz: "School Media",
+    coverImage: photo("photo-1478737270239-2f02b77fc618"),
+    registrationOpen: true,
+    registrationDeadline: "2026-05-26T18:00:00+00:00",
+    participantCapacity: 24,
+    spectatorCapacity: 20,
+    participantApprovedCount: 9,
+    spectatorApprovedCount: 5,
+    allowedSpectatorClasses: ["9A", "10B", "11A"],
+    viewerCanSpectate: false,
+    tags: ["media", "podcast", "interview"],
+    status: "upcoming",
+    featured: false
+  },
+  {
+    id: 12,
+    title: "Волейбольная лига параллелей",
+    titleKz: "Параллельдер арасындағы волейбол лигасы",
+    shortDescription: "Матчи между параллелями с отдельным рейтингом болельщиков.",
+    shortDescriptionKz: "Параллельдер арасындағы матчтар және жанкүйерлер рейтингі.",
+    fullDescription: "Команды играют короткие матчи до 15 очков. Зрители поддерживают свою параллель, а организаторы отмечают не только победы, но и спортивное поведение команд.",
+    fullDescriptionKz: "Командалар 15 ұпайға дейін қысқа матчтар ойнайды. Көрермендер өз параллелін қолдайды.",
+    date: "2026-06-03",
+    startTime: "15:30",
+    endTime: "18:30",
+    location: "Спортзал",
+    locationKz: "Спорт залы",
+    category: "sports",
+    organizer: "PE Department",
+    organizerKz: "Дене шынықтыру кафедрасы",
+    coverImage: photo("photo-1592656094267-764a45160876"),
+    registrationOpen: true,
+    registrationDeadline: "2026-05-31T18:00:00+00:00",
+    participantCapacity: 72,
+    spectatorCapacity: 180,
+    participantApprovedCount: 38,
+    spectatorApprovedCount: 72,
+    allowedSpectatorClasses: [],
+    viewerCanSpectate: true,
+    tags: ["спорт", "лига", "команды"],
+    status: "upcoming",
+    featured: false
+  },
+  {
+    id: 13,
+    title: "Лаборатория робототехники: автономный маршрут",
+    titleKz: "Робототехника зертханасы: автономды маршрут",
+    shortDescription: "Команды программируют роботов, чтобы пройти трассу без ручного управления.",
+    shortDescriptionKz: "Командалар роботтарды қолмен басқармай трассадан өткізуге бағдарламалайды.",
+    fullDescription: "Участники работают с датчиками, логикой движения и быстрыми тестами. Зрители из старших классов смогут наблюдать за финальными заездами и голосовать за самый надежный алгоритм.",
+    fullDescriptionKz: "Қатысушылар датчиктермен, қозғалыс логикасымен және жылдам тесттермен жұмыс істейді.",
+    date: "2026-06-10",
+    startTime: "14:00",
+    endTime: "17:00",
+    location: "STEM Lab",
+    locationKz: "STEM Lab",
+    category: "science",
+    organizer: "Robotics Team",
+    organizerKz: "Robotics Team",
+    coverImage: photo("photo-1485827404703-89b55fcc595e"),
+    registrationOpen: true,
+    registrationDeadline: "2026-06-07T18:00:00+00:00",
+    participantCapacity: 20,
+    spectatorCapacity: 45,
+    participantApprovedCount: 11,
+    spectatorApprovedCount: 18,
+    allowedSpectatorClasses: ["8A", "9A", "10B", "11A"],
+    viewerCanSpectate: true,
+    tags: ["robotics", "STEM", "programming"],
+    status: "upcoming",
+    featured: true
+  }
+);
+
+mockReports.push(
+  {
+    id: 4,
+    eventId: 13,
+    title: "Медиахакатон выпустил первый школьный подкаст",
+    titleKz: "Медиа-хакатон алғашқы мектеп подкастын шығарды",
+    summary: "За один день команды придумали рубрики, записали интервью с учителями и собрали короткие выпуски о школьных событиях.",
+    summaryKz: "Бір күн ішінде командалар айдар ойлап тауып, мұғалімдерден сұхбат жазып, мектеп оқиғалары туралы қысқа шығарылымдар жинады.",
+    results: ["6 пилотных выпусков записано", "18 учеников попробовали монтаж", "3 выпуска выбраны для публикации"],
+    resultsKz: ["6 пилоттық шығарылым жазылды", "18 оқушы монтаж жасап көрді", "3 шығарылым жариялануға таңдалды"],
+    highlights: ["10B собрал лучший саунд-дизайн", "9A взял самое живое интервью", "Медиацентр запустил редакционный календарь"],
+    highlightsKz: ["10B үздік саунд-дизайн жасады", "9A ең әсерлі сұхбат алды", "Медиаорталық редакциялық күнтізбе бастады"],
+    gallery: [photo("photo-1478737270239-2f02b77fc618"), photo("photo-1495020689067-958852a7765e")],
+    quote: "Когда ученики слышат свой голос в общем проекте, школа становится ближе.",
+    quoteKz: "Оқушылар ортақ жобада өз дауысын естігенде, мектеп жақындай түседі.",
+    publishedAt: "2026-04-12T11:00:00+00:00"
+  },
+  {
+    id: 5,
+    eventId: 14,
+    title: "Баскетбольный кубок собрал полный спортзал",
+    titleKz: "Баскетбол кубогы спорт залын толтырды",
+    summary: "Классы подготовили команды поддержки, а финальная игра решила победителя только в последнюю минуту.",
+    summaryKz: "Сыныптар қолдау командаларын дайындады, ал финал жеңімпазды соңғы минутта анықтады.",
+    results: ["8 команд участвовали", "124 зрителя пришли на финал", "11A выиграл кубок параллелей"],
+    resultsKz: ["8 команда қатысты", "124 көрермен финалға келді", "11A параллельдер кубогын жеңді"],
+    highlights: ["Лучший капитан - 8A", "Самая громкая поддержка - 9A", "Fair Play получил 10B"],
+    highlightsKz: ["Үздік капитан - 8A", "Ең белсенді қолдау - 9A", "Fair Play - 10B"],
+    gallery: [photo("photo-1546519638-68e109498ffc"), photo("photo-1519861531473-9200262188bf")],
+    quote: "Спортивный день получился не про счет, а про чувство команды.",
+    quoteKz: "Спорт күні есеп туралы емес, команда сезімі туралы болды.",
+    publishedAt: "2026-04-06T13:00:00+00:00"
+  }
+);
+
+mockApplications.push(
+  { id: 6, userId: 1, eventId: 10, applicationType: "participant", status: "approved", createdAt: "2026-04-19T10:10:00+00:00", event: mockEvents.find(item => item.id === 10) },
+  { id: 7, userId: 1, eventId: 12, applicationType: "spectator", status: "pending", createdAt: "2026-04-19T11:45:00+00:00", event: mockEvents.find(item => item.id === 12) },
+  { id: 8, userId: 1, eventId: 13, applicationType: "participant", status: "approved", createdAt: "2026-04-20T09:15:00+00:00", event: mockEvents.find(item => item.id === 13) }
+);
+
+mockNotifications.push(
+  { id: 5, userId: 1, title: "Новая мастерская доступна твоему классу", titleKz: "Жаңа шеберхана сыныбыңызға қолжетімді", message: "Театральная лаборатория открыла зрительские места для 8A. Можно подать заявку до 24 мая.", messageKz: "Театр зертханасы 8A үшін көрермен орындарын ашты.", isRead: false, type: "event", createdAt: "2026-04-20T14:00:00+00:00" },
+  { id: 6, userId: 1, title: "Подкаст-медиацентр ищет участников", titleKz: "Подкаст медиаорталығы қатысушылар іздейді", message: "Если хочешь попробовать интервью или монтаж, открой событие медиахакатона.", messageKz: "Сұхбат немесе монтаж жасап көргіңіз келсе, медиа-хакатон іс-шарасын ашыңыз.", isRead: true, type: "opportunity", createdAt: "2026-04-20T09:40:00+00:00" },
+  { id: 7, userId: 1, title: "Отчет о баскетбольном кубке опубликован", titleKz: "Баскетбол кубогы туралы есеп жарияланды", message: "Посмотри лучшие моменты финала и список отмеченных команд.", messageKz: "Финалдың үздік сәттері мен марапатталған командаларды қараңыз.", isRead: false, type: "report", createdAt: "2026-04-19T18:00:00+00:00" }
+);
