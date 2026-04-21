@@ -163,7 +163,7 @@ export default function App() {
             {tab === "events" && <Events user={user} events={events} onOpen={item => setDetail({ type: "event", item })} lang={lang} t={t} />}
             {tab === "calendar" && <Calendar events={events} onOpen={item => setDetail({ type: "event", item })} lang={lang} t={t} />}
             {tab === "reports" && <Reports reports={reports} onOpen={item => setDetail({ type: "report", item })} lang={lang} t={t} />}
-            {tab === "applications" && <Applications applications={applications} lang={lang} t={t} onOpen={item => item.event ? setDetail({ type: "event", item: item.event }) : null} />}
+            {tab === "applications" && <Applications user={user} applications={applications} lang={lang} t={t} onOpen={item => item.event ? setDetail({ type: "event", item: item.event }) : null} />}
             {tab === "profile" && <Profile user={user} applications={applications} notifications={notifications} t={t} lang={lang} onLogout={logout} />}
             {tab === "assistant" && <Assistant user={user} lang={lang} announcements={announcements} events={events} reports={reports} applications={applications} notifications={notifications} t={t} />}
           </>
@@ -181,15 +181,34 @@ function LoginScreen({
 }: {
   lang: Lang; setLang: (l: Lang) => void; theme: Theme; setTheme: (t: Theme) => void; onLogin: (u: User) => void;
 }) {
+  const [mode, setMode]           = useState<"login" | "register">("login");
+  const [fullName, setFullName]   = useState("");
   const [email, setEmail]       = useState("mira@school.test");
   const [password, setPassword] = useState("Password123");
+  const [className, setClassName] = useState("11A");
   const [error, setError]       = useState("");
   const [loading, setLoading]   = useState(false);
   const t = makeTranslator(lang);
 
   async function submit(e: FormEvent) {
     e.preventDefault(); setError(""); setLoading(true);
-    try { onLogin((await api.login(email, password)).user); }
+    try {
+      if (mode === "register") {
+        const normalizedClass = normalizeClassName(className);
+        if (!fullName.trim()) throw new Error("Укажи имя и фамилию ученика.");
+        if (!email.includes("@")) throw new Error("Укажи корректную почту.");
+        if (password.length < 8) throw new Error("Пароль должен быть не короче 8 символов.");
+        if (!normalizedClass) throw new Error("Класс должен выглядеть как 7A, 8B, 10A или 11A.");
+        onLogin((await api.register({
+          fullName: fullName.trim(),
+          email: email.trim(),
+          password,
+          className: normalizedClass,
+        })).user);
+      } else {
+        onLogin((await api.login(email, password)).user);
+      }
+    }
     catch (err) { setError(err instanceof Error ? err.message : "Login failed"); }
     finally { setLoading(false); }
   }
@@ -216,24 +235,41 @@ function LoginScreen({
         <div className="login-panel-head">
           <div>
             <p className="eyebrow">LYCEUM LIFE</p>
-            <h2>{t("openApp")}</h2>
+            <h2>{mode === "register" ? "Регистрация ученика" : t("openApp")}</h2>
           </div>
           <div className="login-controls">
             <ThemeSwitcher theme={theme} setTheme={setTheme} />
             <LanguageSwitcher lang={lang} setLang={setLang} />
           </div>
         </div>
+        <div className="auth-mode-switch">
+          <button className={mode === "login" ? "active" : ""} onClick={() => setMode("login")} type="button">Вход</button>
+          <button className={mode === "register" ? "active" : ""} onClick={() => setMode("register")} type="button">Регистрация</button>
+        </div>
+        {mode === "register" && (
+          <label>
+            ФИО ученика
+            <input value={fullName} onChange={e => setFullName(e.target.value)} required={mode === "register"} autoComplete="name" placeholder="Например, Алексей Иванов" />
+          </label>
+        )}
         <label>
           {t("schoolEmail")}
           <input value={email} onChange={e => setEmail(e.target.value)} type="email" autoComplete="email" />
         </label>
         <label>
           {t("password")}
-          <input value={password} onChange={e => setPassword(e.target.value)} type="password" autoComplete="current-password" />
+          <input value={password} onChange={e => setPassword(e.target.value)} type="password" autoComplete={mode === "register" ? "new-password" : "current-password"} />
         </label>
+        {mode === "register" && (
+          <label>
+            Класс
+            <input value={className} onChange={e => setClassName(e.target.value)} placeholder="11A или 11а" />
+            <span className="field-hint">Класс сохраняется в профиле и влияет на доступность зрительских мест.</span>
+          </label>
+        )}
         {error && <div className="error">{error}</div>}
         <button className="primary-button full" type="submit" disabled={loading}>
-          {loading ? t("opening") : `${t("openApp")} →`}
+          {loading ? t("opening") : mode === "register" ? "Создать аккаунт →" : `${t("openApp")} →`}
         </button>
         <small style={{ color: "var(--faint)", fontSize: 11, fontFamily: "var(--font-mono)" }}>{t("demo")}</small>
       </form>
@@ -527,7 +563,7 @@ function Reports({ reports, onOpen, lang, t }: { reports: EventReport[]; onOpen:
 /* ─────────────────────────────────────────────────────────────── */
 /*  Applications                                                   */
 /* ─────────────────────────────────────────────────────────────── */
-function Applications({ applications, lang, t, onOpen }: { applications: EventApplication[]; lang: Lang; t: T; onOpen: (a: EventApplication) => void }) {
+function Applications({ user, applications, lang, t, onOpen }: { user: User; applications: EventApplication[]; lang: Lang; t: T; onOpen: (a: EventApplication) => void }) {
   const [filter, setFilter] = useState("all");
   const counts = {
     all: applications.length,
@@ -575,7 +611,7 @@ function Applications({ applications, lang, t, onOpen }: { applications: EventAp
               </div>
               <h3>{a.event ? eventTitle(a.event, lang) : `Event #${a.eventId}`}</h3>
               <p>{typeLabel(a.applicationType, t)}{a.event ? ` · ${formatShortDate(a.event.date, locale(lang))} · ${eventLocation(a.event, lang)}` : ` · ${t("openDetails")}`}</p>
-              {a.event && <AccessMini event={a.event} spectatorAllowed={a.event.viewerCanSpectate !== false} t={t} />}
+              {a.event && <AccessMini event={a.event} spectatorAllowed={canSpectate(a.event, user.className)} t={t} />}
             </div>
           </article>
         ))}
@@ -1038,7 +1074,32 @@ function statusLabel(s: EventApplication["status"], t: T) {
   return t(m[s]);
 }
 function typeLabel(type: ApplicationType, t: T) { return type === "participant" ? t("participant") : t("spectator"); }
-function canSpectate(e: SchoolEvent, cls: string) { return !e.allowedSpectatorClasses.length || e.allowedSpectatorClasses.includes(cls) || e.viewerCanSpectate === true; }
+function normalizeClassName(value: string) {
+  const normalized = value
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/[аА]/g, "A")
+    .replace(/[бБ]/g, "B")
+    .replace(/[вВ]/g, "B")
+    .replace(/[гГ]/g, "G")
+    .replace(/[дД]/g, "D")
+    .replace(/[сС]/g, "C")
+    .replace(/[еЕ]/g, "E")
+    .replace(/[нН]/g, "H")
+    .replace(/[кК]/g, "K")
+    .replace(/[мМ]/g, "M")
+    .replace(/[оО]/g, "O")
+    .replace(/[рР]/g, "P")
+    .replace(/[тТ]/g, "T")
+    .replace(/[хХ]/g, "X")
+    .toUpperCase();
+  return /^(?:[5-9]|1[0-1])[A-Z]$/.test(normalized) ? normalized : "";
+}
+function canSpectate(e: SchoolEvent, cls: string) {
+  const normalizedClass = normalizeClassName(cls);
+  if (!e.allowedSpectatorClasses.length) return true;
+  return e.allowedSpectatorClasses.map(normalizeClassName).includes(normalizedClass);
+}
 function firstName(name: string) { return name.trim().split(/\s+/)[0] || name; }
 function initials(name: string)  { return name.trim().split(/\s+/).slice(0,2).map(p => p[0]).join("").toUpperCase(); }
 function locale(l: Lang)         { return l === "ru" ? "ru-RU" : "kk-KZ"; }

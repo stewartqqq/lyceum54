@@ -10,6 +10,36 @@ from ..utils import current_user, error_response
 auth_bp = Blueprint("auth", __name__)
 
 CLASS_PATTERN = re.compile(r"^(?:[5-9]|1[0-1])[A-Z]$")
+CYRILLIC_CLASS_LETTERS = str.maketrans({
+    "А": "A",
+    "Б": "B",
+    "В": "B",
+    "Г": "G",
+    "Д": "D",
+    "С": "C",
+    "Е": "E",
+    "Н": "H",
+    "К": "K",
+    "М": "M",
+    "О": "O",
+    "Р": "P",
+    "Т": "T",
+    "Х": "X",
+    "а": "A",
+    "б": "B",
+    "в": "B",
+    "г": "G",
+    "д": "D",
+    "с": "C",
+    "е": "E",
+    "н": "H",
+    "к": "K",
+    "м": "M",
+    "о": "O",
+    "р": "P",
+    "т": "T",
+    "х": "X",
+})
 
 
 def _validate_registration(data):
@@ -21,7 +51,7 @@ def _validate_registration(data):
         raise ValueError("Email must be valid.")
     if len(data["password"]) < 8:
         raise ValueError("Password must be at least 8 characters.")
-    class_name = data["className"].strip().upper()
+    class_name = data["className"].strip().translate(CYRILLIC_CLASS_LETTERS).upper()
     if not CLASS_PATTERN.match(class_name):
         raise ValueError("Class must look like 7A, 8B, 10A, or 11C.")
     return class_name

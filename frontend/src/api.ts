@@ -16,6 +16,13 @@ export type AssistantSiteContext = {
   notifications?: AppNotification[];
 };
 
+export type RegisterPayload = {
+  fullName: string;
+  email: string;
+  password: string;
+  className: string;
+};
+
 async function request<T>(path: string, options: RequestInit = {}, includeAuth = true): Promise<T> {
   const token = localStorage.getItem(TOKEN_KEY);
   const response = await fetch(`${API_URL}${path}`, {
@@ -52,6 +59,34 @@ export function logout() {
 }
 
 export const api = {
+  async register(payload: RegisterPayload) {
+    const localUser: User = {
+      id: Date.now(),
+      fullName: payload.fullName,
+      email: payload.email.toLowerCase(),
+      className: payload.className,
+      role: "student"
+    };
+
+    if (USE_MOCKS) {
+      const result = { accessToken: "demo-token", user: localUser };
+      localStorage.setItem(TOKEN_KEY, result.accessToken);
+      localStorage.setItem(USER_KEY, JSON.stringify(result.user));
+      return result;
+    }
+
+    const result = await fallback(
+      () => request<{ accessToken: string; user: User }>("/auth/register", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      }, false),
+      { accessToken: "demo-token", user: localUser }
+    );
+    localStorage.setItem(TOKEN_KEY, result.accessToken);
+    localStorage.setItem(USER_KEY, JSON.stringify(result.user));
+    return result;
+  },
+
   async login(email: string, password: string) {
     if (USE_MOCKS) {
       const result = { accessToken: "demo-token", user: demoUser };
@@ -75,8 +110,16 @@ export const api = {
   announcements: () => USE_MOCKS ? Promise.resolve({ announcements: mockAnnouncements }) : fallback(() => request<{ announcements: Announcement[] }>("/announcements"), { announcements: mockAnnouncements }),
   events: () => USE_MOCKS ? Promise.resolve({ events: mockEvents }) : fallback(() => request<{ events: SchoolEvent[] }>("/events"), { events: mockEvents }),
   reports: () => USE_MOCKS ? Promise.resolve({ reports: mockReports }) : fallback(() => request<{ reports: EventReport[] }>("/reports"), { reports: mockReports }),
-  applications: () => USE_MOCKS ? Promise.resolve({ applications: mockApplications }) : fallback(() => request<{ applications: EventApplication[] }>("/applications/my"), { applications: mockApplications }),
-  notifications: () => USE_MOCKS ? Promise.resolve({ notifications: mockNotifications }) : fallback(() => request<{ notifications: AppNotification[] }>("/notifications"), { notifications: mockNotifications }),
+  applications: () => {
+    const currentUser = getStoredUser();
+    const localApplications = currentUser ? mockApplications.filter(item => item.userId === currentUser.id) : mockApplications;
+    return USE_MOCKS ? Promise.resolve({ applications: localApplications }) : fallback(() => request<{ applications: EventApplication[] }>("/applications/my"), { applications: localApplications });
+  },
+  notifications: () => {
+    const currentUser = getStoredUser();
+    const localNotifications = currentUser ? mockNotifications.filter(item => item.userId === currentUser.id) : mockNotifications;
+    return USE_MOCKS ? Promise.resolve({ notifications: localNotifications }) : fallback(() => request<{ notifications: AppNotification[] }>("/notifications"), { notifications: localNotifications });
+  },
 
   apply: (eventId: number, applicationType: ApplicationType, note = "") => {
     if (USE_MOCKS) {
@@ -95,10 +138,26 @@ export const api = {
       });
     }
 
-    return request<{ application: EventApplication }>(`/events/${eventId}/apply`, {
-      method: "POST",
-      body: JSON.stringify({ applicationType, note })
-    });
+    const user = getStoredUser();
+    const event = mockEvents.find((item) => item.id === eventId);
+    return fallback(
+      () => request<{ application: EventApplication }>(`/events/${eventId}/apply`, {
+        method: "POST",
+        body: JSON.stringify({ applicationType, note })
+      }),
+      {
+        application: {
+          id: Date.now(),
+          userId: user?.id ?? demoUser.id,
+          eventId,
+          event,
+          applicationType,
+          note,
+          status: "pending",
+          createdAt: new Date().toISOString()
+        } satisfies EventApplication
+      }
+    );
   },
 
   assistant: (prompt: string, context: AssistantSiteContext = {}) =>
