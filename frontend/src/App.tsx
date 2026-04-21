@@ -73,6 +73,16 @@ export default function App() {
 
   function openTab(next: Tab) { setTab(next); setDetail(null); }
   function logout() { clearSession(); setUser(null); setDetail(null); setTab("home"); }
+  function addApplication(application: EventApplication) {
+    const enriched = {
+      ...application,
+      event: application.event ?? events.find(event => event.id === application.eventId),
+    };
+    setApplications(previous => [
+      enriched,
+      ...previous.filter(item => item.id !== enriched.id && !(item.eventId === enriched.eventId && item.applicationType === enriched.applicationType)),
+    ]);
+  }
 
   if (!user) return <LoginScreen lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} onLogin={setUser} />;
 
@@ -153,7 +163,7 @@ export default function App() {
         {loading && <Loading t={t} />}
 
         {!loading && detail && (
-          <DetailView detail={detail} onBack={() => setDetail(null)} user={user} lang={lang} t={t} />
+          <DetailView detail={detail} onBack={() => setDetail(null)} user={user} lang={lang} t={t} onApplicationCreated={addApplication} />
         )}
 
         {!loading && !detail && (
@@ -769,7 +779,11 @@ function Assistant({ user, lang, announcements, events, reports, applications, n
 /* ─────────────────────────────────────────────────────────────── */
 /*  Detail views                                                   */
 /* ─────────────────────────────────────────────────────────────── */
-function DetailView({ detail, onBack, user, lang, t }: { detail: Detail; onBack: () => void; user: User; lang: Lang; t: T }) {
+function DetailView({
+  detail, onBack, user, lang, t, onApplicationCreated,
+}: {
+  detail: Detail; onBack: () => void; user: User; lang: Lang; t: T; onApplicationCreated: (application: EventApplication) => void;
+}) {
   if (!detail) return null;
   if (detail.type === "announcement") {
     const { item } = detail;
@@ -814,10 +828,14 @@ function DetailView({ detail, onBack, user, lang, t }: { detail: Detail; onBack:
       </section>
     );
   }
-  return <EventDetail event={detail.item} user={user} onBack={onBack} lang={lang} t={t} />;
+  return <EventDetail event={detail.item} user={user} onBack={onBack} lang={lang} t={t} onApplicationCreated={onApplicationCreated} />;
 }
 
-function EventDetail({ event, user, onBack, lang, t }: { event: SchoolEvent; user: User; onBack: () => void; lang: Lang; t: T }) {
+function EventDetail({
+  event, user, onBack, lang, t, onApplicationCreated,
+}: {
+  event: SchoolEvent; user: User; onBack: () => void; lang: Lang; t: T; onApplicationCreated: (application: EventApplication) => void;
+}) {
   const initType: ApplicationType = canSpectate(event, user.className) ? "spectator" : "participant";
   const [type, setType]       = useState<ApplicationType>(initType);
   const [note, setNote]       = useState("");
@@ -827,7 +845,11 @@ function EventDetail({ event, user, onBack, lang, t }: { event: SchoolEvent; use
 
   async function apply() {
     setMsg(""); setSub(true);
-    try { await api.apply(event.id, type, note); setMsg(t("applicationSubmitted")); }
+    try {
+      const result = await api.apply(event.id, type, note);
+      onApplicationCreated({ ...result.application, event: result.application.event ?? event });
+      setMsg(t("applicationSubmitted"));
+    }
     catch (err) { setMsg(err instanceof Error ? err.message : t("applicationFailed")); }
     finally { setSub(false); }
   }
