@@ -31,7 +31,7 @@ const categoryKeys: Record<string, TranslationKey> = {
 
 export default function App() {
   const [lang, setLang]               = useState<Lang>(() => (localStorage.getItem(LANG_KEY) as Lang) || "ru");
-  const [theme, setTheme]             = useState<Theme>(() => (localStorage.getItem(THEME_KEY) as Theme) || "dark");
+  const [theme, setTheme]             = useState<Theme>(() => (localStorage.getItem(THEME_KEY) as Theme) || "light");
   const [user, setUser]               = useState<User | null>(() => getStoredUser());
   const [tab, setTab]                 = useState<Tab>("home");
   const [detail, setDetail]           = useState<Detail>(null);
