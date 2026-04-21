@@ -58,6 +58,12 @@ export function logout() {
   localStorage.removeItem(USER_KEY);
 }
 
+function persistSession(result: { accessToken: string; user: User }) {
+  localStorage.setItem(TOKEN_KEY, result.accessToken);
+  localStorage.setItem(USER_KEY, JSON.stringify(result.user));
+  return result;
+}
+
 export const api = {
   async register(payload: RegisterPayload) {
     const localUser: User = {
@@ -70,41 +76,29 @@ export const api = {
 
     if (USE_MOCKS) {
       const result = { accessToken: "demo-token", user: localUser };
-      localStorage.setItem(TOKEN_KEY, result.accessToken);
-      localStorage.setItem(USER_KEY, JSON.stringify(result.user));
-      return result;
+      return persistSession(result);
     }
 
-    const result = await fallback(
-      () => request<{ accessToken: string; user: User }>("/auth/register", {
-        method: "POST",
-        body: JSON.stringify(payload)
-      }, false),
-      { accessToken: "demo-token", user: localUser }
-    );
-    localStorage.setItem(TOKEN_KEY, result.accessToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(result.user));
-    return result;
+    const result = await request<{ accessToken: string; user: User }>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }, false);
+    return persistSession(result);
   },
 
   async login(email: string, password: string) {
     if (USE_MOCKS) {
-      const result = { accessToken: "demo-token", user: demoUser };
-      localStorage.setItem(TOKEN_KEY, result.accessToken);
-      localStorage.setItem(USER_KEY, JSON.stringify(result.user));
-      return result;
+      if (email.trim().toLowerCase() !== "mira@school.test" || password !== "Password123") {
+        throw new Error("Invalid email or password.");
+      }
+      return persistSession({ accessToken: "demo-token", user: demoUser });
     }
 
-    const result = await fallback(
-      () => request<{ accessToken: string; user: User }>("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ email, password })
-      }),
-      { accessToken: "demo-token", user: demoUser }
-    );
-    localStorage.setItem(TOKEN_KEY, result.accessToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(result.user));
-    return result;
+    const result = await request<{ accessToken: string; user: User }>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password })
+    });
+    return persistSession(result);
   },
 
   announcements: () => USE_MOCKS ? Promise.resolve({ announcements: mockAnnouncements }) : fallback(() => request<{ announcements: Announcement[] }>("/announcements"), { announcements: mockAnnouncements }),
